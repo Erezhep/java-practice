@@ -1,15 +1,13 @@
 package org.example.week_3.L;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
 public class ConnectToDB {
-    public Connection connectToMySQL() throws IOException, SQLException {
+    public static Connection connectToMySQL() throws IOException, SQLException {
 
         Properties props = DBConfig.loadProperties();
 

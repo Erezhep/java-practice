@@ -7,7 +7,7 @@ public class Restaurant {
     public static void main(String[] args) {
 
         int timeWorkRestaurant = 20000;
-        BlockingQueue<Order> queue = new LinkedBlockingQueue<>(1); // Очередь заказов
+        BlockingQueue<Order> queue = new LinkedBlockingQueue<>(2); // Очередь заказов
 
         System.out.println("Ресторан работает " + Math.round((float)(timeWorkRestaurant) / 1000) + "с!");
         synchronized (queue){
@@ -35,7 +35,7 @@ public class Restaurant {
 
             // Останавливаем программу (не идеальный способ, но для примера подойдет)
             waiter1.interrupt();
-            // waiter2.interrupt();
+            waiter2.interrupt();
             chef1.interrupt();
             chef2.interrupt();
             System.out.println("🏁 Ресторан закрывается!");

@@ -1,47 +1,54 @@
 package org.example.week_3.L;
 
+import java.io.IOException;
 import java.sql.*;
 
+
 public class Main {
-    public static void main(String[] args) throws SQLException {
-        String url = "";
-        String user = "root";
-        String password = "";
+    public static void main(String[] args) throws IOException {
 
-        // Подключение к базе данных MySQL
-        try (Connection conn = DriverManager.getConnection(url, user, password)){
-            System.out.println("✅ Успешное подключение к MySQL!");
-            conn.setAutoCommit(false);
+        int senderId = 1; // ID отправителя
+        int receiverId = 2; // ID получателя
+        double amount = 500.0; // Сумма перевода
 
-            // Создать таблицу users
-            String createTableSql = "CREATE TABLE IF NOT EXISTS users ("
-                    + "id INT AUTO_INCREMENT PRIMARY KEY, "
-                    + "name VARCHAR(100) NOT NULL, "
-                    + "email VARCHAR(100) UNIQUE NOT NULL"
-                    + ")";
-            try (Statement stmt = conn.createStatement()){
-                stmt.executeUpdate(createTableSql);
-                System.out.println("✅ Таблица 'users' создана!");
+        try (Connection conn = ConnectToDB.connectToMySQL()){
+            System.out.println("Успешно подключилься к базе данных!");
+
+            conn.setAutoCommit(false); // Отключаем авто-коммиты (Atomicity)
+            conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE); // Высокий уровень изоляции (Isolation)
+
+            // Проверяем баланс отправителя
+            PreparedStatement checkBalance = conn.prepareStatement("SELECT balance FROM accounts WHERE id = ?");
+            checkBalance.setInt(1, senderId);
+            ResultSet rs = checkBalance.executeQuery();
+            if (!rs.next() || rs.getDouble("balance") < amount) {
+                throw new SQLException("Недостаточно средств!");
             }
 
-            // Добавление пользователи в база данных
-            String insertSQL = "INSERT INTO users (name, email) VALUES (?, ?)";
-            try (PreparedStatement pstmt = conn.prepareStatement(insertSQL)){
-//                 pstmt.setString(1, "Bekarys");
-//                 pstmt.setString(2, "beka@example.com");
-//                 pstmt.executeUpdate();
+            // Списываем деньги у отправителя
+            PreparedStatement withdraw = conn.prepareStatement("UPDATE accounts SET balance = balance + ? WHERE id = ?");
+            withdraw.setDouble(1, amount);
+            withdraw.setInt(2, senderId);
+            withdraw.executeUpdate();
 
-                System.out.println("✅ Данные добавлены!");
+            // Зачисляем деньги получателю
+            PreparedStatement deposit = conn.prepareStatement("UPDATE accounts SET balance = balance - ? WHERE id = ?");
+            deposit.setDouble(1, amount);
+            deposit.setInt(2, receiverId);
+            deposit.executeUpdate();
+
+            conn.commit(); // Подтверждаем транзакцию (Durability)
+            System.out.println("Перевод выполнен успешно!");
+
+        }catch (SQLException e){
+            e.printStackTrace();
+            try {
+                Connection conn = ConnectToDB.connectToMySQL();
+                conn.rollback(); // Откат транзакции, если произошла ошибка
+                System.out.println("Транзакция откатилась!");
+            } catch (SQLException rollbackEx) {
+                rollbackEx.printStackTrace();
             }
-
-            // Чтение данных
-            String selectSQL = "SELECT * FROM users";
-            try (Statement state = conn.createStatement();
-                ResultSet rs = state.executeQuery(selectSQL)){
-                System.out.println("📋 Список пользователей:");
-                System.out.println(rs);
-            }
-
         }
     }
 }

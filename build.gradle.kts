@@ -20,6 +20,8 @@ dependencies {
 
     // MySQL connector
     implementation("mysql:mysql-connector-java:8.0.33")
+
+    implementation("org.apache.pdfbox:pdfbox:2.0.33") // PDFBox
 }
 
 tasks.test {
