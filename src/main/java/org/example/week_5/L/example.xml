@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<notes>
+    <note>
+        <id>1</id>
+        <title>Покупки</title>
+        <content>Купить молоко, хлеб и яйца</content>
+    </note>
+    <note>
+        <id>2</id>
+        <title>Работа</title>
+        <content>Закончить отчет к понедельнику</content>
+    </note>
+</notes>

@@ -126,5 +126,4 @@ public class LabReportTemplate {
         mainPart.getContent().add(paragraph);
     }
 
-
 }
