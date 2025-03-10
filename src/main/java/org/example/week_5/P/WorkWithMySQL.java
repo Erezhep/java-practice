@@ -17,7 +17,7 @@ public class WorkWithMySQL {
         }
     }
 
-    public static boolean deleteTable(int id) throws SQLException, IOException {
+    public static boolean deleteUser(int id) throws SQLException, IOException {
         try (Connection conn = DBConnect.connectToMySQL()){
             int res;
             String sqlQuery = "DELETE FROM users WHERE id = ?";
@@ -61,4 +61,17 @@ public class WorkWithMySQL {
         }
         return res > 0;
     }
+
+    public static void insertUser(String name, int age) throws SQLException, IOException{
+        String sqlQuery = "INSERT INTO users (name, age) VALUES (?, ?)";
+        try (Connection conn = DBConnect.connectToMySQL();
+            PreparedStatement pstmt = conn.prepareStatement(sqlQuery)){
+            pstmt.setString(1, name);
+            pstmt.setInt(2, age);
+
+            pstmt.executeUpdate();
+            System.out.println("Пользователь " + name + " успешно добавлен");
+        }
+    }
+
 }
